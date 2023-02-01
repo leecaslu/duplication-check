@@ -1,11 +1,5 @@
-"""
-TODO Implementar função que manda email com a confirmação de finalização da tarefa.
-"""
-
-# imports necessarios: openpyxl, selenium e pandas
 import csv
 import pandas as pd
-# from ast import literal_eval
 from openpyxl import load_workbook
 from openpyxl import Workbook
 from random import randint
@@ -65,31 +59,6 @@ def geracao_vistoria_diaria(plan: str, dia_semana: int) -> list[DadosCliente]:
     df = pd.read_excel(plan, sheet_name="Consulta", usecols=["Microregiao"])
     df.sort_values(by=["Microregiao"], inplace=True)
     micros = set(df.Microregiao[dia_semana * 102 : (dia_semana + 1) * 102])
-    return cria_clientes(micros, plan)
-
-
-# Deprecado
-def geracao_relatorio_mensal(plan: str) -> list[DadosCliente]:
-    """Gerando uma lista de clientes, um de cada região"""
-    df = pd.read_excel(
-        plan, sheet_name="Consulta", usecols=["Microregiao", "Duplicidade"]
-    )
-    eliminar = set({})
-    micros = set(df.Microregiao) - eliminar
-    print(micros)
-    return cria_clientes(micros, plan)
-
-
-# Deprecado
-def geracao_vistoria_filtrada(plan: str, filtro: str) -> list[DadosCliente]:
-    df = pd.read_excel(
-        plan, sheet_name="Consulta", usecols=["Microregiao", "Duplicidade"]
-    )
-    counter = len(df.index)
-    micros = set()
-    for i in range(counter):
-        if df.Regiao[i].find(filtro) > 0:
-            micros.add(df.Microregiao[i])
     return cria_clientes(micros, plan)
 
 
