@@ -1,0 +1,9 @@
+CNPJ,Cod_Cliente1,Regiao,T.O. 25kg,T.O. 42kg,T.O. 50kg,Est. 40kg,Est. 50kg,códigos analisados,duplicidade,códigos a sanear,comentário E.I.
+-,1604736,VC-MANAUS,0,5,0,0,0," código: 6054174 ,  código: 6194008 ,  código: 6186726 ,  código: 6180506 ,  código: 8020201 ",sim,,
+-,1504403,VC-PARINTINS,0,4,0,0,0," código: 6194008 ,  código: 6186726 ,  código: 6180506 ,  código: 8020201 ",sim,,
+-,1448622,VC-MADEIRA,0,2,1,0,0," código: 6194008 ,  código: 8020201 ,  código: 6120895 ",sim,,
+-,1667378,VC-BOA VISTA,0,2,0,0,0," código: 6194008 ,  código: 8020201 ",sim,,
+-,1587353,VC-ALTO SOLIMOES,0,4,0,0,0," código: 6194008 ,  código: 6186726 ,  código: 6180506 ,  código: 8020201 ",sim,,
+-,1598390,VC-ITACOATIARA,0,4,0,0,0," código: 6194008 ,  código: 6186726 ,  código: 6180506 ,  código: 8020201 ",sim,,
+-,1675943,VC-COARI,0,2,0,0,0," código: 6194008 ,  código: 8020201 ",sim,,
+-,1584743,VC-RIO PRETO DA EVA,0,3,1,0,0," código: 6194008 ,  código: 6180506 ,  código: 8020201 ,  código: 6111677 ",sim,,

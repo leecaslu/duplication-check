@@ -1,0 +1,3 @@
+DadosCliente(identificacao=(1481256, 'VC-APUCARANA', 26936406000174), cimento_todas_obras={'25 to': 1, '50 to': 1}, cimento_estrutural={'40 e': 0, '50 e': 0}, codigos_analisados=['CÓDIGO: 6054186', 'CÓDIGO: 6054190'])
+DadosCliente(identificacao=(1436848, 'VC-ROSARIO OESTE', 23287802000120), cimento_todas_obras={'25 to': 1, '50 to': 1}, cimento_estrutural={'40 e': 0, '50 e': 0}, codigos_analisados=['CÓDIGO: 6054184', 'CÓDIGO: 6165750'])
+DadosCliente(identificacao=(1565239, 'VC-SAO FELIX XINGU', 28659680000179), cimento_todas_obras={'25 to': 0, '50 to': 0}, cimento_estrutural={'40 e': 0, '50 e': 1}, codigos_analisados=['CÓDIGO: 6160545'])
