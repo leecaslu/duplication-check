@@ -4,13 +4,10 @@ class LVLocator(object):
 
     # locators for admin homepage - clientes
     lv_adm_cod_cliente = '//*[@id="wnoDL"]/div[2]/div[2]'
-    lv_adm_linha_cod_clientes = '//*[@id="app"]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div/div[2]/tbody[' \
-                                '1]/tr/td[3]/p '
+    lv_adm_linha_cod_clientes = '//*[@id="gsVbx"]/div[2]/div[2]'
     lv_adm_produtos = '//*[@id="app"]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div[1]/div'
-    lv_adm_icone_acessar_cliente = '//*[@id="app"]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div/div[2]/tbody[' \
-                                   '1]/tr/td[8]/div/div/div '
-    lv_adm_search_cod_cliente = '/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div/div[1]/div[2]/div[' \
-                                '1]/div/input '
+    lv_adm_icone_acessar_cliente = '//*[@id="app"]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div/div[2]/tbody[1]/tr/td[8]/div/div/div '
+    lv_adm_search_cod_cliente = '/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div/div[1]/div[2]/div[1]/div/input '
 
     # locators for admin homepage - produtos
     lv_adm_search_produto = '/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div[1]/div[1]/div[1]/div/input'

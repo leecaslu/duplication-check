@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-# Dados do cliente: Duplicidade para cimentos todas as obras e estrutural, CNPJ e microrregiao,
-# códigos dos produtos que ele tem
+# Client login code, verification status and data
 @dataclass
 class DadosCliente:
     identificacao: tuple

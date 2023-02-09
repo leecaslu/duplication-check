@@ -1,34 +1,26 @@
-# Programa que le o excel, procura na web e preenche os dados necessarios.
-"""
-TODO implementar o PageObjects.
-Funciona sem PageObjects, mas seria interessante refatorar, levando em consideração as limitações da LV.
-"""
-
-# imports necessarios: openpyxl, selenium.
 import selenium.common.exceptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium import webdriver
+import chromedriver_binary
 from os import getcwd
-
-# from PageObjects.Pages.LV_LoginPage import LVLogin
-# from PageObjects.Pages.LV_ProdutoPage import LVProdutoPage
-# from PageObjects.Pages.LV_AdminHomePage_Cliente import LVAdminHomePageC
-# from PageObjects.Pages.LV_AdminHomePage_Produto import LVAdminHomePageP
-# from PageObjects.Pages.LV_CimentoPage import LVCimentoPage
-# from PageObjects.Pages.LV_ClienteHomePage import LVClienteHomePage
+from PageObjects.Pages.LV_LoginPage import LVLogin
+from PageObjects.Pages.LV_AdminHomePage_Cliente import LVAdminHomePageC
+from PageObjects.Pages.LV_AdminHomePage_Produto import LVAdminHomePageP
+from PageObjects.Pages.LV_CimentoPage import LVCimentoPage
+from PageObjects.Pages.LV_ClienteHomePage import LVClienteHomePage
 from time import sleep
 from datetime import date
-from classes import DadosCliente, DadosProduto
+from classes import DadosCliente
 
-# tempo de espera para carregar elementos na LV. É alto pois a LV demora muito.
+# high waiting time, since the virtual store is slow
 timeout = 100
 
 
 class Usuario:
-  """Classe que representa o usuário. Ele tem um user, email e senha e pode realizar login e checar duplicidade"""
+  """User class. This class represents a client using the virtual store."""
 
   def __init__(
     self, username: str, password: str, email: str, proxy_con: bool, proxy: str = ""
@@ -37,36 +29,33 @@ class Usuario:
     self.senha = password
     self.email = email
     self.proxy = proxy_con
-    # inicializando o driver Chrome.
+    # driverChrome
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)
     options.add_argument("window-size=1360,760")
     if proxy_con:
       options.add_argument(f"--proxy-server={proxy}")
-    self.driver = webdriver.Chrome(
-      executable_path="RPA\ChecarDuplicidade\webdrivers\chromedriver108.exe",
-      options=options,
-    )
+    self.driver = webdriver.Chrome(options=options)
 
-  # Realizando o login na LV
+  # logging into the virtual store
   def login_lv(self, produto=False) -> None:
     """Método que realiza o login em um link, neste caso específico, a Loja Virtual. Inicializa o Chrome driver e
     navega até o link, faz o login administrativo e insere user e senha, com pyautoGUI pois selenium não reconhece
     alertas de API (do SO)"""
     self.driver.get("https://admin-loja.juntossomosmais.com.br/login")
-    self.driver.find_element(By.CLASS_NAME, "jsm-button__button--medium").click()
-    # Entrando email, login e senha
+    page = LVLogin(self.driver)
+    page.lv_login_button.click()
+    # logging in
     WebDriverWait(self.driver, timeout=timeout).until(
       ec.presence_of_element_located((By.NAME, "loginfmt"))
     )
     self.driver.find_element(By.NAME, "loginfmt").send_keys(self.email, Keys.ENTER)
+    page = LVAdminHomePageC(self.driver)
+    
     WebDriverWait(self.driver, timeout=timeout).until(
       ec.presence_of_element_located((By.CLASS_NAME, "jsm-table__select-filter"))
     )
-    self.driver.execute_script(
-      "arguments[0].click();",
-      self.driver.find_element_by_class_name("jsm-table__select-filter"),
-    )
+    self.driver.execute_script("arguments[0].click();", page.lv_adm_cod_cliente)
     WebDriverWait(self.driver, timeout=timeout).until(
       ec.presence_of_element_located((By.CLASS_NAME, "jsm-select__options"))
     )
@@ -320,183 +309,3 @@ class Usuario:
     cliente.verificado = True
     print(cliente)
     return cliente
-
-  # DEPRECADO
-  def sanear_produto(self, produto: DadosProduto, ativar: bool = False):
-      codigo = produto.codigo
-      micros = produto.micros_sanear
-      # Pesquisando o código
-      WebDriverWait(self.driver, timeout=timeout).until(
-          ec.presence_of_element_located(
-              (
-                  By.XPATH,
-                  "/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div[1]/div[1]/div[1]/div/input",
-              )
-          )
-      )
-      self.driver.find_element(
-          By.XPATH,
-          "/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div[1]/div["
-          "1]/div[1]/div/input",
-      ).send_keys(Keys.CONTROL + "a", Keys.DELETE)
-      sleep(2)
-      self.driver.find_element(
-          By.XPATH,
-          "/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div[1]/div["
-          "1]/div[1]/div/input",
-      ).send_keys(codigo, Keys.ENTER)
-      sleep(2)
-      # Esperando carregamento
-      tent = 0
-      while True:
-          try:
-              if codigo.strip() in self.driver.find_elements(
-                  By.CLASS_NAME, "jsm-table__data-field"
-              )[1].get_attribute("title"):
-                  break
-              else:
-                  tent += 1
-                  if tent > 6:
-                      print("demorou muito para responder")
-                      return
-                  else:
-                      sleep(5)
-                      pass
-          except selenium.common.exceptions.StaleElementReferenceException:
-              pass
-          except IndexError:
-              print("erro: não foi encontrado")
-              return
-      sleep(2)
-      self.driver.execute_script(
-          "arguments[0].click();",
-          self.driver.find_elements(By.CLASS_NAME, "jsm-table__data-field")[1],
-      )
-      # Caso queiramos inativar o produto
-      if produto.inativar:
-          WebDriverWait(self.driver, timeout=timeout).until(
-              ec.presence_of_element_located((By.XPATH, "//a[text()='Inativo']"))
-          )
-          self.driver.execute_script(
-              "arguments[0].click();",
-              self.driver.find_element(By.XPATH, "//a[text()=" "'Inativo']"),
-          )
-          return
-      # Selecionando como sanear o produto
-      WebDriverWait(self.driver, timeout=timeout).until(
-          ec.presence_of_element_located((By.CLASS_NAME, "form-group"))
-      )
-      sleep(2)
-      scope = self.driver.find_elements(By.CLASS_NAME, "form-group")[2]
-      WebDriverWait(self.driver, timeout=timeout).until(
-          ec.presence_of_element_located((By.CLASS_NAME, "v-select__selections"))
-      )
-      sleep(1)
-      scope.find_element(By.CLASS_NAME, "v-select__selections").click()
-      WebDriverWait(self.driver, timeout=timeout).until(
-          ec.presence_of_element_located((By.CLASS_NAME, "v-list-item__title"))
-      )
-      elements = scope.find_elements(By.CLASS_NAME, "v-list-item__title")
-      print(elements)
-      for e in elements:
-          if e.get_attribute("innerHTML") == "Microregiao":
-              self.driver.execute_script("arguments[0].click();", e)
-      sleep(1)
-
-      # /html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div[1]/fieldset/div[2]/div[3]
-
-      # Pesquisando a MR e tirando a seleção
-      if not ativar:
-          WebDriverWait(self.driver, timeout=timeout).until(
-              ec.presence_of_element_located(
-                  (
-                      By.XPATH,
-                      "/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div[1]/fieldset/div[2]/div[3]",
-                  )
-              )
-          )
-          parent = scope.find_element(
-              By.XPATH,
-              "/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div[1]"
-              "/fieldset/div[2]/div[3]",
-          )
-      else:
-          WebDriverWait(self.driver, timeout=timeout).until(
-              ec.presence_of_element_located(
-                  (
-                      By.XPATH,
-                      "/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div[1]/fieldset/div[2]/div[1]",
-                  )
-              )
-          )
-          parent = scope.find_element(
-              By.XPATH,
-              "/html/body/div[1]/div/div/div[2]/div[2]/div[2]/div[2]/div/div/div[1]"
-              "/fieldset/div[2]/div[1]",
-          )
-      # Verificar esse try
-      save = False
-      try:
-          elements = parent.find_elements(By.CLASS_NAME, "jsm-checkbox__wrapper")
-          for e in elements:
-              if e.get_attribute("innerHTML") in micros:
-                  save = True
-                  print(f'{e.get_attribute("innerHTML")} saneado do produto {codigo}')
-                  e.click()
-      except selenium.common.exceptions.StaleElementReferenceException:
-          pass
-      except selenium.common.exceptions.NoSuchElementException:
-          print(f"não foi possível encontrar o produto {codigo}")
-          pass
-      if save:
-          buttons = self.driver.find_elements(By.CLASS_NAME, "v-btn__content")
-          for b in buttons:
-              if b.get_attribute("innerHTML") == "SALVAR":
-                  self.driver.execute_script("arguments[0].click();", b)
-          # jsm-notification__wrapper
-          WebDriverWait(self.driver, timeout=timeout).until(
-              ec.presence_of_element_located(
-                  (By.CLASS_NAME, "jsm-notification__wrapper")
-              )
-          )
-          popup = self.driver.find_element(By.CLASS_NAME, "jsm-notification__wrapper")
-          sucesso = (
-              "jsm-notification__wrapper-active--success"
-              in popup.get_attribute("class")
-          )
-          if sucesso:
-              return
-          else:
-              WebDriverWait(self.driver, timeout=timeout).until(
-                  ec.presence_of_element_located(
-                      (
-                          By.XPATH,
-                          "/html/body/div[1]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div[1]/div/p",
-                      )
-                  )
-              )
-              self.driver.execute_script(
-                  "arguments[0].click();",
-                  self.driver.find_element(
-                      By.XPATH,
-                      "/html/body/div[1]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div[1]/div/p",
-                  ),
-              )
-              return
-      else:
-          WebDriverWait(self.driver, timeout=timeout).until(
-              ec.presence_of_element_located(
-                  (
-                      By.XPATH,
-                      "/html/body/div[1]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div[1]/div/p",
-                  )
-              )
-          )
-          self.driver.execute_script(
-              "arguments[0].click();",
-              self.driver.find_element(
-                  By.XPATH,
-                  "/html/body/div[1]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div[1]/div/p",
-              ),
-          )
-          return
